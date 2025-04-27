@@ -9,23 +9,27 @@ generator client {
   output   = "../src/infrastructure/prisma/generated"
 }
 
+generator zod {
+  provider                  = "zod-prisma-types"
+  output                    = "../src/infrastructure/prisma/__defs__"
+  useMultipleFiles          = true
+  createInputTypes          = false
+  addInputTypeValidation    = false
+  addIncludeType            = false
+  addSelectType             = false
+  createRelationValuesTypes = false
+  writeNullishInModelTypes  = true
+  prismaClientPath          = "../src/infrastructure/prisma/generate/client"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String
 }
