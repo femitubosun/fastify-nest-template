@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
-import { ConfigModule } from '@nestjs/config';
+
 import { IdentityModule } from './identity/identity.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
+import { ConfigModule } from './config/config.module';
 
 @Module({
-  imports: [InfrastructureModule, ConfigModule.forRoot(), IdentityModule],
+  imports: [InfrastructureModule, ConfigModule, IdentityModule, ConfigModule],
   controllers: [AppController],
   providers: [
     AppService,
