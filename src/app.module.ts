@@ -9,6 +9,7 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { ConfigModule } from './config/config.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { ConfigService } from '@nestjs/config';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
 
     IdentityModule,
     ConfigModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [
