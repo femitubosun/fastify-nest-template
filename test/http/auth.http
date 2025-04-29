@@ -1,10 +1,14 @@
 ## Sign up
 
 ### Send POST request with json body
-POST http://localhost:3000/auth
+POST http://localhost:3800/auth
 Content-Type: application/json
 
 {
   "email": "999",
   "password": "content"
 }
+
+### GET
+
+GET localhost:3800

@@ -5,8 +5,13 @@ export const EnvSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   PORT: z.coerce.number().default(3000),
+
   DATABASE_URL: z.string().url(),
+
   JWT_SECRET: z.string(),
+
+  CACHE_URL: z.string(),
+  QUEUE_URL: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

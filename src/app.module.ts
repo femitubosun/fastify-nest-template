@@ -7,9 +7,23 @@ import { IdentityModule } from './identity/identity.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { ConfigModule } from './config/config.module';
+import { RedisModule } from './infrastructure/redis/redis.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [InfrastructureModule, ConfigModule, IdentityModule, ConfigModule],
+  imports: [
+    InfrastructureModule,
+    ConfigModule,
+    RedisModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        url: configService.get<string>('CACHE_URL')!,
+      }),
+      inject: [ConfigService],
+    }),
+
+    IdentityModule,
+    ConfigModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,
