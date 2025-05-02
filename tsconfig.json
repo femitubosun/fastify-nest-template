@@ -19,7 +19,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-//      "@/*": ["src/*"],
+      //      "@/*": ["src/*"],
       "@infra/*": ["src/infrastructure/*"],
       "@common/*": ["src/common/*"],
       "@identity/*": ["src/identity/*"]
