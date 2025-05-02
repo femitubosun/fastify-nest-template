@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { LoginUserDto, RegisterUserDto } from '../__defs__/auth.dto';
 import { ZodSerializerDto } from 'nestjs-zod';
-import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { AuthResponseDto } from '../__defs__';
 import { Public } from '../decorators/public.decorator';
@@ -23,7 +23,7 @@ export class AuthController {
 
   @Post('login')
   @ZodSerializerDto(AuthResponseDto)
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     type: AuthResponseDto,
   })
   @HttpCode(HttpStatus.OK)

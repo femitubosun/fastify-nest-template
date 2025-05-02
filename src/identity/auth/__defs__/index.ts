@@ -11,6 +11,8 @@ export const SessionUserSchema = z.object({
 
 export type SessionUserSchema = z.infer<typeof SessionUserSchema>;
 
+export class SessionUserDto extends createZodDto(SessionUserSchema) {}
+
 export const JwtPayloadSchema = z.object({
   sub: z.string(),
   email: z.string(),
