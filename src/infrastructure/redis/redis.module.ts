@@ -1,6 +1,6 @@
 import { Module, DynamicModule, Provider } from '@nestjs/common';
 import { createClient } from 'redis';
-import { RedisService as RedisService } from './redis.service';
+import { RedisService as RedisService } from './services/redis.service';
 
 export interface RedisModuleOptions {
   url: string;
@@ -10,7 +10,7 @@ export interface RedisModuleOptions {
 export class RedisModule {
   static forRoot(options: RedisModuleOptions): DynamicModule {
     const redisProvider: Provider = {
-      provide: 'FATE_REDIS_CLIENT',
+      provide: 'REDIS_CLIENT',
       useFactory: async () => {
         const client = createClient({ url: options.url });
         client.on('error', (err) => console.error('Redis Client Error', err));
@@ -21,8 +21,9 @@ export class RedisModule {
     };
     return {
       module: RedisModule,
-      providers: [redisProvider],
-      exports: [redisProvider],
+      providers: [redisProvider, RedisService],
+      exports: [RedisService],
+      global: true,
     };
   }
 

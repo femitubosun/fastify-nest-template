@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
 import { JwtService } from '@infra/crypto/services/jwt.service';
-import { RedisService } from '@infra/redis/redis.service';
+import { RedisService } from '@infra/redis/services/redis.service';
 import { makeSessionKey } from '../utils/session.utils';
 import { JwtPayloadSchema, SessionUserSchema } from '../__defs__';
 import { AuthedRequest } from '@common/__defs__';

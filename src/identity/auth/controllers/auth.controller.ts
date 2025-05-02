@@ -1,17 +1,33 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { RegisterUserDto } from '../__defs__/auth.dto';
+import { LoginUserDto, RegisterUserDto } from '../__defs__/auth.dto';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { ApiCreatedResponse } from '@nestjs/swagger';
+import { AuthService } from '../services/auth.service';
+import { AuthResponseDto } from '../__defs__';
+import { Public } from '../decorators/public.decorator';
 
+@Public()
 @Controller('auth')
 export class AuthController {
-  @Post()
-  @ZodSerializerDto(RegisterUserDto)
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  @ZodSerializerDto(AuthResponseDto)
   @ApiCreatedResponse({
-    type: RegisterUserDto,
+    type: AuthResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
-  register(@Body() body: RegisterUserDto): RegisterUserDto {
-    return body;
+  async register(@Body() body: RegisterUserDto) {
+    return this.authService.registerUser(body);
+  }
+
+  @Post('login')
+  @ZodSerializerDto(AuthResponseDto)
+  @ApiCreatedResponse({
+    type: AuthResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() body: LoginUserDto) {
+    return this.authService.loginUser(body);
   }
 }

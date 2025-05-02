@@ -1,6 +1,7 @@
+import { User } from '@infra/prisma/__defs__';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
@@ -15,6 +16,7 @@ export class JwtService {
       jwt.sign(
         payload,
         this.secret,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         { expiresIn: expiresIn as any },
         (err, token) => {
           if (err || !token)
@@ -32,6 +34,14 @@ export class JwtService {
           return reject(new Error(err?.message || 'Could not verify token'));
         resolve(decoded as T);
       });
+    });
+  }
+
+  generateAuthToken(user: User, sessionVersion: number) {
+    return this.sign({
+      sub: user.id,
+      email: user.email,
+      sessionVersion,
     });
   }
 }

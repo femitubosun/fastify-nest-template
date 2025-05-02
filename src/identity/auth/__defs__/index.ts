@@ -1,9 +1,9 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const SessionUserSchema = z.object({
   id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
+  name: z.string(),
   email: z.string().email(),
   roles: z.string().array(),
   sessionVersion: z.number().positive(),
@@ -16,3 +16,12 @@ export const JwtPayloadSchema = z.object({
   email: z.string(),
   sessionVersion: z.number(),
 });
+
+export const AuthResponseSchema = z.object({
+  token: z.string(),
+  message: z.string(),
+});
+
+export type AuthResponseSchema = z.infer<typeof AuthResponseSchema>;
+
+export class AuthResponseDto extends createZodDto(AuthResponseSchema) {}
