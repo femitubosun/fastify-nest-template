@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
-import { CryptoModule } from '@infra/crypto/crypto.module';
+import { CryptoModule } from './crypto/crypto.module';
 
 @Global()
 @Module({

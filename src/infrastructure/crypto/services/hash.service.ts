@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class HashService {
@@ -19,5 +20,9 @@ export class HashService {
       console.error(error);
       throw new Error('Failed to verify password');
     }
+  }
+
+  sha256Hash(input: string): string {
+    return crypto.createHash('sha256').update(input).digest('hex');
   }
 }

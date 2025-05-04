@@ -33,5 +33,21 @@ model User {
   email String  @unique
   name  String?
   password String
+  
+  tokens OtpToken[] 
 }
 
+enum TokenType {
+  PASSWORD_RESET
+  SIGNUP
+}
+
+model OtpToken {
+  id         String @id @default(cuid())
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+  tokenType TokenType
+  tokenHash     String
+  expiresAt  DateTime
+  isUsed       Boolean @default(false)
+}

@@ -7,12 +7,13 @@ import {
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 
-import { JwtService } from '@infra/crypto/services/jwt.service';
-import { RedisService } from '@infra/redis/services/redis.service';
 import { makeSessionKey } from '../utils/session.utils';
 import { JwtPayloadSchema, SessionUserSchema } from '../__defs__';
-import { AuthedRequest } from '@common/__defs__';
+
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { JwtService } from 'src/infrastructure/crypto/services/jwt.service';
+import { RedisService } from 'src/infrastructure/redis/services/redis.service';
+import { AuthedRequest } from 'src/common/__defs__';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

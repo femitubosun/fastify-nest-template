@@ -1,6 +1,3 @@
-import { HashService } from '@infra/crypto/services/hash.service';
-import { JwtService } from '@infra/crypto/services/jwt.service';
-import { PrismaService } from '@infra/prisma/prisma.service';
 import {
   BadRequestException,
   ConflictException,
@@ -8,6 +5,9 @@ import {
 } from '@nestjs/common';
 import { RegisterUserDto } from '../__defs__/auth.dto';
 import { SessionService } from './session.service';
+import { JwtService } from 'src/infrastructure/crypto/services/jwt.service';
+import { HashService } from 'src/infrastructure/crypto/services/hash.service';
+import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {

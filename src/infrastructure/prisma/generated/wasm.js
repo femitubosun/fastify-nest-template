@@ -124,6 +124,15 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password'
 };
 
+exports.Prisma.OtpTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenType: 'tokenType',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  isUsed: 'isUsed'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -138,10 +147,14 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.TokenType = exports.$Enums.TokenType = {
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  SIGNUP: 'SIGNUP'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  OtpToken: 'OtpToken'
 };
 
 /**
