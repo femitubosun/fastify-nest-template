@@ -15,7 +15,7 @@ export type EmptyRequestSchema = z.infer<typeof EmptyRequestSchema>;
 export class EmptyRequestDto extends createZodDto(EmptyRequestSchema) {}
 
 /**
- *
+ * Message Response
  */
 export const MessageResponseSchema = z.object({
   message: z.string(),
