@@ -12,12 +12,7 @@ export default tseslint.config(
       'src/infrastructure/prisma/generated',
     ],
   },
-  {
-    files: ['**/*.spec.ts'],
-    rules: {
-      '@typescript-eslint/unbound-method': 'off',
-    },
-  },
+
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
@@ -42,6 +37,7 @@ export default tseslint.config(
       },
     },
   },
+
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
@@ -59,7 +55,12 @@ export default tseslint.config(
           ignoreRestSiblings: true,
         },
       ],
-      '@typescript-eslint/unbound-method': 'warn',
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
     },
   },
 );
