@@ -10,7 +10,7 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { AuthedRequest, MessageResponseDto } from 'src/common/__defs__';
 import { ChangePasswordDto } from '../__defs__';
-import { PasswordService } from '../services/password.service';
+import { PasswordService } from '@/identity/user/services/password.service';
 
 @Controller('users')
 export class ChangePasswordController {

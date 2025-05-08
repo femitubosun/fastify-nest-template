@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { HashService } from 'src/infrastructure/crypto/services/hash.service';
-import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
+import { HashService } from '@/infrastructure/crypto/services/hash.service';
+import { PrismaService } from '@/infrastructure/prisma/prisma.service';
 
 @Injectable()
 export class PasswordService {

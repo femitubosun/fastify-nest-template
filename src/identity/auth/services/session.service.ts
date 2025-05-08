@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { makeSessionKey, makeSessionUser } from '../utils/session.utils';
 import { SessionUserSchema } from '../__defs__';
-import { User } from 'src/infrastructure/prisma/generated';
-import { RedisService } from 'src/infrastructure/redis/services/redis.service';
+import { RedisService } from '@/infrastructure/redis/services/redis.service';
+import { User } from '@/infrastructure/prisma/__defs__';
 
 @Injectable()
 export class SessionService {

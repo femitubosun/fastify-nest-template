@@ -3351,7 +3351,7 @@ declare interface PrismaPromise_2<
    * @param transaction transaction options
    */
   catch<R = never>(
-    onrejected?: ((reason: any) => R | PromiseLike<R>) | undefined | null,
+    onrejected?: ((reason: any) => R | PromiseLike<R>) | null,
     transaction?: PrismaPromiseTransaction,
   ): Promise<TResult | R>;
   /**
@@ -3360,7 +3360,7 @@ declare interface PrismaPromise_2<
    * @param transaction transaction options
    */
   finally(
-    onfinally?: (() => void) | undefined | null,
+    onfinally?: (() => void) | null,
     transaction?: PrismaPromiseTransaction,
   ): Promise<TResult>;
   /**
@@ -3529,7 +3529,7 @@ declare type QueryEngineProtocol = 'graphql' | 'json';
 
 declare type QueryEngineRequest = {
   query: string;
-  variables: Object;
+  variables: object;
 };
 
 declare type QueryEngineResultData<T> = {

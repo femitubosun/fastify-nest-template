@@ -1,4 +1,4 @@
-import { User } from 'src/infrastructure/prisma/generated';
+import { User } from 'src/infrastructure/prisma/__defs__';
 import { SessionUserSchema } from '../__defs__';
 
 export function makeSessionKey(identifier: string): string {
