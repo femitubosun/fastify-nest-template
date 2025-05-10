@@ -1,7 +1,7 @@
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { QNames } from './__defs__/queue.dto';
+import { QNames } from '@/infrastructure/queue/__defs__/queue.dto';
 
 /**
  * Registers a queue with the given name using BullMQ and BullBoard.

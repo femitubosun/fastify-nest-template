@@ -11,7 +11,11 @@ export const EnvSchema = z.object({
   JWT_SECRET: z.string(),
 
   CACHE_URL: z.string(),
-  QUEUE_URL: z.string(),
+
+  BULLMQ_REDIS_URL: z.string(),
+  BULLMQ_DASHBOARD_USER: z.string(),
+  BULLMQ_DASHBOARD_PASSWORD: z.string(),
+  BULLMQ_DASHBOARD_ROUTE: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
