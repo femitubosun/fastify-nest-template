@@ -35,7 +35,7 @@ export class RedisModule {
   }): DynamicModule {
     const asyncRedisProvider: Provider = {
       provide: 'REDIS_CLIENT',
-      useFactory: async (...args: any[]) => {
+      useFactory: async (...args: unknown[]) => {
         const opts = await options.useFactory(...args);
         const client = createClient({ url: opts.url });
         client.on('error', (err) => console.error('Redis Client Error', err));

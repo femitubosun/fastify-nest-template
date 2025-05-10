@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-import { User } from 'src/infrastructure/prisma/generated';
+import { User } from 'src/infrastructure/prisma/__defs__';
 
 @Injectable()
 export class JwtService {

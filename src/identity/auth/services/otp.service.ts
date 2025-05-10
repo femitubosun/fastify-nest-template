@@ -1,43 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { HashService } from 'src/infrastructure/crypto/services/hash.service';
-import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
+import { HashService } from '@/infrastructure/crypto/services/hash.service';
+import { OtpTokenRepository } from '@/identity/auth/repositories/otp-token.repository';
 
 @Injectable()
 export class OtpService {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly hashService: HashService,
+    private readonly otpTokenRepository: OtpTokenRepository,
   ) {}
 
   generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async markAllAsUsed(userId: string, tokenType: 'PASSWORD_RESET' | 'SIGNUP') {
-    return this.prismaService.otpToken.updateMany({
-      where: {
-        userId,
-        tokenType,
-      },
-      data: {
-        isUsed: true,
-      },
-    });
-  }
-
   async createOtpToken(userId: string, tokenType: 'PASSWORD_RESET' | 'SIGNUP') {
-    await this.markAllAsUsed(userId, tokenType);
+    await this.otpTokenRepository.markAllAsUsed({
+      userId,
+      tokenType,
+    });
 
     const otp = this.generateOtp();
-
     const tokenHash = this.hashService.sha256Hash(otp);
-    const otpToken = await this.prismaService.otpToken.create({
-      data: {
-        userId,
-        tokenType,
-        tokenHash,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 5),
-      },
+    const otpToken = await this.otpTokenRepository.create({
+      userId,
+      tokenType,
+      tokenHash,
+      expiresAt: this.generateTokenExpiry(new Date()),
     });
 
     return {
@@ -46,16 +34,23 @@ export class OtpService {
     };
   }
 
-  async findToken(token: string, tokenType?: 'PASSWORD_RESET' | 'SIGNUP') {
-    const tokenHash = this.hashService.sha256Hash(token);
+  async findToken(input: {
+    token: string;
+    tokenType?: 'PASSWORD_RESET' | 'SIGNUP';
+  }) {
+    const tokenHash = this.hashService.sha256Hash(input.token);
 
-    return this.prismaService.otpToken.findFirst({
-      where: {
-        tokenHash,
-        tokenType,
-        isUsed: false,
-        expiresAt: { gt: new Date() },
-      },
+    return this.otpTokenRepository.findValidToken({
+      tokenType: input.tokenType,
+      tokenHash,
     });
+  }
+
+  generateTokenExpiry(date: Date) {
+    return new Date(date.getTime() + 1000 * 60 * 5);
+  }
+
+  async expireToken(otpTokenId: string) {
+    return this.otpTokenRepository.markAsUsed(otpTokenId);
   }
 }

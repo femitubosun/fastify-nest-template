@@ -4,10 +4,10 @@ import { UserSchema } from 'src/infrastructure/prisma/__defs__';
 
 export const RegisterUserSchema = UserSchema.pick({
   email: true,
-  name: true,
   password: true,
+}).extend({
+  name: z.string().optional(),
 });
-
 export type RegisterUserSchema = z.infer<typeof RegisterUserSchema>;
 
 export class RegisterUserDto extends createZodDto(RegisterUserSchema) {}

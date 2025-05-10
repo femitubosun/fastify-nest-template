@@ -10,11 +10,11 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { AuthedRequest, MessageResponseDto } from 'src/common/__defs__';
 import { ChangePasswordDto } from '../__defs__';
-import { PasswordService } from '@/identity/user/services/password.service';
+import { ChangePasswordUseCase } from '@/identity/user/use-cases/change-password.use-case';
 
 @Controller('users')
 export class ChangePasswordController {
-  constructor(private readonly passwordService: PasswordService) {}
+  constructor(private readonly changePasswordUseCase: ChangePasswordUseCase) {}
 
   @Post('change-password')
   @ZodSerializerDto(MessageResponseDto)
@@ -24,9 +24,9 @@ export class ChangePasswordController {
     @Body() body: ChangePasswordDto,
     @Request() req: AuthedRequest,
   ) {
-    await this.passwordService.changePassword({
-      userId: req.user.id,
+    await this.changePasswordUseCase.execute({
       ...body,
+      userId: req.user.id,
     });
 
     return {

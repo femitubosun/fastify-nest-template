@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import {
   RequestPasswordResetTokenDto,
@@ -14,18 +7,16 @@ import {
 } from '../__defs__/password.dto';
 
 import { MessageResponseDto } from 'src/common/__defs__';
-import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
-import { OtpService } from '../services/otp.service';
-import { HashService } from 'src/infrastructure/crypto/services/hash.service';
 import { Public } from '../decorators/public.decorator';
+import { RequestPasswordResetOtpUseCase } from '@/identity/auth/use-cases/request-password-reset-otp.use-case';
+import { ResetPasswordUseCase } from '@/identity/auth/use-cases';
 
 @Public()
 @Controller('auth/reset-password')
 export class ResetPasswordController {
   constructor(
-    private readonly otpService: OtpService,
-    private readonly prismaService: PrismaService,
-    private readonly hashService: HashService,
+    private readonly requestPasswordResetOtpUseCase: RequestPasswordResetOtpUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
   ) {}
 
   @Post('request-token')
@@ -34,34 +25,7 @@ export class ResetPasswordController {
   })
   @HttpCode(HttpStatus.OK)
   async requestResetPasswordOtp(@Body() input: RequestPasswordResetTokenDto) {
-    const OTP_TOKEN_SENT = 'Otp Token sent to email';
-
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        email: input.email,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!user) {
-      return {
-        message: OTP_TOKEN_SENT,
-      };
-    }
-
-    const { otp } = await this.otpService.createOtpToken(
-      user.id,
-      'PASSWORD_RESET',
-    );
-
-    // TODO send otp to email
-    console.log('otp', otp);
-
-    return {
-      message: OTP_TOKEN_SENT,
-    };
+    return this.requestPasswordResetOtpUseCase.execute(input.email);
   }
 
   @Post('reset')
@@ -70,22 +34,7 @@ export class ResetPasswordController {
   })
   @HttpCode(HttpStatus.OK)
   async verifyPasswordResetOtp(@Body() input: ResetPasswordDto) {
-    const { token, password } = input;
-
-    const otpToken = await this.otpService.findToken(token);
-
-    if (!otpToken) {
-      throw new BadRequestException('Invalid token');
-    }
-
-    await this.prismaService.user.update({
-      where: {
-        id: otpToken.userId,
-      },
-      data: {
-        password: await this.hashService.hash(password),
-      },
-    });
+    await this.resetPasswordUseCase.execute(input);
 
     return {
       message: 'Password reset successful',
