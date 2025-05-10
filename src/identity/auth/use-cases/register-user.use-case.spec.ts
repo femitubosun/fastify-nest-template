@@ -1,132 +1,137 @@
-import { RegisterUserDto } from '@/identity/auth/__defs__/auth.dto';
-import { SessionService } from '@/identity/auth/services/session.service';
-import { RegisterUserUseCase } from '@/identity/auth/use-cases/register-user.use-case';
-import { UserRepository } from '@/identity/user/repositories';
-import { HashService } from '@/infrastructure/crypto/services/hash.service';
-import { JwtService } from '@/infrastructure/crypto/services/jwt.service';
-import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConflictException } from '@nestjs/common';
+import { RegisterUserUseCase } from './register-user.use-case';
+import { UserService } from '@/identity/user/services/user.service';
+import { SessionService } from '@/identity/auth/services/session.service';
+import { RegisterUserDto } from '@/identity/auth/__defs__/auth.dto';
+import { OtpToken, User } from '@/infrastructure/prisma/__defs__';
 import { Mocked } from 'jest-mock';
+import { JwtService } from '@/infrastructure/crypto/services/jwt.service';
+import { QueueService } from '@/infrastructure/queue/queue.service';
+import { OtpService } from '@/identity/auth/services/otp.service';
+import { QNames } from '@/infrastructure/queue/__defs__/queue.dto';
 
-jest.mock('@/identity/user/repositories');
-jest.mock('@/infrastructure/crypto/services/hash.service');
-jest.mock('@/identity/auth/services/session.service');
-jest.mock('@/infrastructure/crypto/services/jwt.service');
+const mockRegisterDto: RegisterUserDto = {
+  email: 'test@example.com',
+  name: 'Test User',
+  password: 'password123',
+};
 
-describe('RegisterUser', () => {
+const mockUser: User = {
+  id: 'user-id-123',
+  email: 'test@example.com',
+  name: 'Test User',
+  password: 'hashedPassword',
+};
+
+const mockSessionVersion = 1;
+
+describe('RegisterUserUseCase', () => {
   let useCase: RegisterUserUseCase;
-  let userRepository: Mocked<UserRepository>;
-  let hashService: Mocked<HashService>;
-  let sessionService: Mocked<SessionService>;
-  let jwtService: Mocked<JwtService>;
-
-  const mockedUser = {
-    id: '123',
-    name: 'Test Test',
-    email: 'test@email.com',
-    password: 'hashedPassword',
-  };
+  let mockedJwtService: Mocked<JwtService>;
+  let mockedUserService: Mocked<UserService>;
+  let mockedSessionService: Mocked<SessionService>;
+  let mockedQueueService: Mocked<QueueService>;
+  let mockedOtpService: Mocked<OtpService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RegisterUserUseCase,
-        UserRepository,
-        HashService,
-        SessionService,
-        JwtService,
+        {
+          provide: JwtService,
+          useValue: { generateAuthToken: jest.fn() },
+        },
+        {
+          provide: UserService,
+          useValue: { registerUser: jest.fn() },
+        },
+        {
+          provide: SessionService,
+          useValue: { initializeSession: jest.fn() },
+        },
+        {
+          provide: QueueService,
+          useValue: { addToQueue: jest.fn() },
+        },
+        {
+          provide: OtpService,
+          useValue: { createOtpToken: jest.fn() },
+        },
       ],
     }).compile();
 
-    useCase = module.get(RegisterUserUseCase);
-    userRepository = module.get(UserRepository);
-    hashService = module.get(HashService);
-    sessionService = module.get(SessionService);
-    jwtService = module.get(JwtService);
+    useCase = module.get<RegisterUserUseCase>(RegisterUserUseCase);
+    mockedJwtService = module.get(JwtService);
+    mockedUserService = module.get(UserService);
+    mockedSessionService = module.get(SessionService);
+    mockedQueueService = module.get(QueueService);
+    mockedOtpService = module.get(OtpService);
+
+    // Reset mocks before each test
+    jest.clearAllMocks();
   });
 
-  it('should register successfully', async () => {
-    const input: RegisterUserDto = {
-      email: mockedUser.email,
-      password: 'password',
-      name: 'Test',
-    };
-    const expectedToken = 'jwtToken';
-    const expectedPasswordHash = 'hashedPassword';
+  it('should be defined', () => {
+    expect(useCase).toBeDefined();
+  });
 
-    userRepository.findIdByEmail.mockResolvedValue(null);
-    userRepository.create.mockResolvedValue(mockedUser);
-    jwtService.generateAuthToken.mockResolvedValue(expectedToken);
-    hashService.hash.mockResolvedValue(expectedPasswordHash);
+  describe('execute', () => {
+    it('should successfully register a user and initialize a session', async () => {
+      mockedUserService.registerUser.mockResolvedValue(mockUser);
+      mockedSessionService.initializeSession.mockResolvedValue(
+        mockSessionVersion,
+      );
+      mockedOtpService.createOtpToken.mockResolvedValue({
+        otp: 'string',
+        otpToken: {} as OtpToken,
+      });
+      const mockedToken = 'adfdfdf';
+      mockedJwtService.generateAuthToken.mockResolvedValue(mockedToken);
 
-    const result = await useCase.execute(input);
+      const result = await useCase.execute(mockRegisterDto);
 
-    expect(userRepository.findIdByEmail).toHaveBeenCalledWith(input.email);
-    expect(userRepository.create).toHaveBeenCalledWith({
-      ...input,
-      password: expectedPasswordHash,
+      expect(mockedUserService.registerUser).toHaveBeenCalledWith(
+        mockRegisterDto,
+      );
+      expect(mockedSessionService.initializeSession).toHaveBeenCalledWith(
+        mockUser,
+      );
+      expect(mockedQueueService.addToQueue).toHaveBeenCalledWith({
+        queueName: QNames.sendMail,
+        data: {
+          email: mockUser.email,
+          subject: 'Welcome to app',
+          context: {
+            firstName: mockUser.name?.split(' ')[0] || '',
+            otp: 'string',
+          },
+        },
+      });
+
+      expect(result).toEqual({
+        message: 'User registered successfully',
+        token: mockedToken,
+      });
     });
-    expect(sessionService.createSession).toHaveBeenCalledWith(mockedUser, 1);
-    expect(jwtService.generateAuthToken).toHaveBeenCalledWith(mockedUser, 1);
 
-    expect(result).toEqual({
-      message: 'User registered successfully',
-      token: expectedToken,
+    it('should throw ConflictException if user already exists', async () => {
+      const errorMessage = 'User already exists';
+      mockedUserService.registerUser.mockRejectedValue(
+        new ConflictException(errorMessage),
+      );
+
+      await expect(useCase.execute(mockRegisterDto)).rejects.toThrow(
+        ConflictException,
+      );
+      await expect(useCase.execute(mockRegisterDto)).rejects.toThrow(
+        errorMessage,
+      );
+
+      expect(mockedUserService.registerUser).toHaveBeenCalledWith(
+        mockRegisterDto,
+      );
+      expect(mockedSessionService.initializeSession).not.toHaveBeenCalled();
     });
-  });
-
-  it('should throw error if user already exists', async () => {
-    const input: RegisterUserDto = {
-      email: mockedUser.email,
-      password: 'password',
-      name: 'Test Test',
-    };
-
-    userRepository.findIdByEmail.mockResolvedValue({ id: mockedUser.id });
-
-    await expect(useCase.execute(input)).rejects.toThrowError(
-      new ConflictException('User already exists'),
-    );
-  });
-
-  it('should hash the password before saving', async () => {
-    const input: RegisterUserDto = {
-      email: mockedUser.email,
-      password: 'password',
-      name: 'Test',
-    };
-    const expectedPasswordHash = 'hashedPassword';
-
-    userRepository.findIdByEmail.mockResolvedValue(null);
-    userRepository.create.mockResolvedValue(mockedUser);
-    hashService.hash.mockResolvedValue(expectedPasswordHash);
-
-    await useCase.execute(input);
-
-    expect(hashService.hash).toHaveBeenCalledTimes(1);
-    expect(hashService.hash).toHaveBeenCalledWith(input.password);
-  });
-
-  it('should generate a token with the correct user and session version', async () => {
-    const input: RegisterUserDto = {
-      email: mockedUser.email,
-      password: 'password',
-      name: 'Test',
-    };
-
-    const expectedPasswordHash = 'hashedPassword';
-    const expectedSessionVersion = 1;
-
-    hashService.hash.mockResolvedValue(expectedPasswordHash);
-    userRepository.findIdByEmail.mockResolvedValue(null);
-    userRepository.create.mockResolvedValue(mockedUser);
-    jwtService.generateAuthToken.mockResolvedValue('jwtToken');
-
-    await useCase.execute(input);
-
-    expect(jwtService.generateAuthToken).toHaveBeenCalledWith(
-      mockedUser,
-      expectedSessionVersion,
-    );
   });
 });

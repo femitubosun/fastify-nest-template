@@ -4,10 +4,8 @@ import { ZodSerializerDto } from 'nestjs-zod';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AuthResponseDto } from '../__defs__';
 import { Public } from '../decorators/public.decorator';
-import {
-  LoginUserUseCase,
-  RegisterUserUseCase,
-} from '@/identity/auth/use-cases';
+import { LoginUserUseCase } from '@/identity/auth/use-cases';
+import { RegisterUserUseCase } from '@/identity/auth/use-cases/register-user.use-case';
 
 @Public()
 @Controller('auth')

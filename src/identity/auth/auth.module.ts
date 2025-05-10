@@ -8,12 +8,12 @@ import { SessionService } from './services/session.service';
 import { ResetPasswordController } from './controllers/reset-password.controller';
 import { OtpService } from './services/otp.service';
 import { LoginUserUseCase } from '@/identity/auth/use-cases/login-user.use-case';
-import { RegisterUserUseCase } from '@/identity/auth/use-cases/register-user.use-case';
 import { UserModule } from '@/identity/user/user.module';
 import { OtpTokenRepository } from '@/identity/auth/repositories/otp-token.repository';
 import {
   RequestPasswordResetOtpUseCase,
   ResetPasswordUseCase,
+  RegisterUserUseCase,
 } from '@/identity/auth/use-cases';
 
 const USE_CASES = [

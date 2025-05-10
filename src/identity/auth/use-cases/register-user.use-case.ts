@@ -1,45 +1,39 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { JwtService } from '@/infrastructure/crypto/services/jwt.service';
-import { HashService } from '@/infrastructure/crypto/services/hash.service';
-import { SessionService } from '@/identity/auth/services/session.service';
-import { UserRepository } from '@/identity/user/repositories';
 import { RegisterUserDto } from '@/identity/auth/__defs__/auth.dto';
-import { QueueService } from '@/infrastructure/queue/queue.service';
+import { SessionService } from '@/identity/auth/services/session.service';
+import { UserService } from '@/identity/user/services/user.service';
+import { JwtService } from '@/infrastructure/crypto/services/jwt.service';
 import { QNames } from '@/infrastructure/queue/__defs__/queue.dto';
+import { QueueService } from '@/infrastructure/queue/queue.service';
+import { Injectable } from '@nestjs/common';
+import { OtpService } from '../services/otp.service';
 
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRepository: UserRepository,
-    private readonly hashService: HashService,
+    private readonly userService: UserService,
     private readonly sessionService: SessionService,
     private readonly queueService: QueueService,
+    private readonly otpService: OtpService,
   ) {}
 
   async execute(input: RegisterUserDto) {
-    const { email, name, password } = input;
-
-    const existingUser = await this.userRepository.findIdByEmail(email);
-
-    if (existingUser) {
-      throw new ConflictException('User already exists');
-    }
-
-    const user = await this.userRepository.create({
-      email,
-      name,
-      password: await this.hashService.hash(password),
-    });
+    const user = await this.userService.registerUser(input);
+    const { otp } = await this.otpService.createOtpToken(user.id, 'SIGNUP');
 
     await this.queueService.addToQueue({
-      data: user,
       queueName: QNames.sendMail,
+      data: {
+        email: user.email,
+        subject: 'Welcome to app',
+        context: {
+          firstName: user.name?.split(' ')[0] || '',
+          otp,
+        },
+      },
     });
 
-    const sessionVersion = 1;
-    await this.sessionService.createSession(user, sessionVersion);
-
+    const sessionVersion = await this.sessionService.initializeSession(user);
     const token = await this.jwtService.generateAuthToken(user, sessionVersion);
 
     return {
