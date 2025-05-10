@@ -16,6 +16,12 @@ export const EnvSchema = z.object({
   BULLMQ_DASHBOARD_USER: z.string(),
   BULLMQ_DASHBOARD_PASSWORD: z.string(),
   BULLMQ_DASHBOARD_ROUTE: z.string(),
+
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_USER: z.string(),
+  SMTP_PASSWORD: z.string(),
+  DEFAULT_EMAIL_FROM: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;

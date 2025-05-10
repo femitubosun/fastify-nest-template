@@ -2,10 +2,9 @@ import { RegisterUserDto } from '@/identity/auth/__defs__/auth.dto';
 import { SessionService } from '@/identity/auth/services/session.service';
 import { UserService } from '@/identity/user/services/user.service';
 import { JwtService } from '@/infrastructure/crypto/services/jwt.service';
-import { QNames } from '@/infrastructure/queue/__defs__/queue.dto';
-import { QueueService } from '@/infrastructure/queue/queue.service';
 import { Injectable } from '@nestjs/common';
 import { OtpService } from '../services/otp.service';
+import { MailDispatcherService } from '@/infrastructure/mail/mail-dispatcher.service';
 
 @Injectable()
 export class RegisterUserUseCase {
@@ -13,7 +12,7 @@ export class RegisterUserUseCase {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly sessionService: SessionService,
-    private readonly queueService: QueueService,
+    private readonly mailDispatcher: MailDispatcherService,
     private readonly otpService: OtpService,
   ) {}
 
@@ -21,16 +20,10 @@ export class RegisterUserUseCase {
     const user = await this.userService.registerUser(input);
     const { otp } = await this.otpService.createOtpToken(user.id, 'SIGNUP');
 
-    await this.queueService.addToQueue({
-      queueName: QNames.sendMail,
-      data: {
-        email: user.email,
-        subject: 'Welcome to app',
-        context: {
-          firstName: user.name?.split(' ')[0] || '',
-          otp,
-        },
-      },
+    await this.mailDispatcher.sendWelcomeMail({
+      email: user.email,
+      otp,
+      firstName: user.name?.split(' ')[0] || '',
     });
 
     const sessionVersion = await this.sessionService.initializeSession(user);

@@ -4,7 +4,8 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["infrastructure/prisma/generated/**/*", "infrastructure/prisma/scripts/**/*"],
+    "assets": ["infrastructure/prisma/generated/**/*", "infrastructure/prisma/scripts/**/*",
+      "infrastructure/mail/templates/**/*"],
     "watchAssets": true
   }
 
