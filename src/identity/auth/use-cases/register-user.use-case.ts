@@ -4,6 +4,8 @@ import { HashService } from '@/infrastructure/crypto/services/hash.service';
 import { SessionService } from '@/identity/auth/services/session.service';
 import { UserRepository } from '@/identity/user/repositories';
 import { RegisterUserDto } from '@/identity/auth/__defs__/auth.dto';
+import { QueueService } from '@/infrastructure/queue/queue.service';
+import { QNames } from '@/infrastructure/queue/__defs__/queue.dto';
 
 @Injectable()
 export class RegisterUserUseCase {
@@ -12,6 +14,7 @@ export class RegisterUserUseCase {
     private readonly userRepository: UserRepository,
     private readonly hashService: HashService,
     private readonly sessionService: SessionService,
+    private readonly queueService: QueueService,
   ) {}
 
   async execute(input: RegisterUserDto) {
@@ -27,6 +30,11 @@ export class RegisterUserUseCase {
       email,
       name,
       password: await this.hashService.hash(password),
+    });
+
+    await this.queueService.addToQueue({
+      data: user,
+      queueName: QNames.sendMail,
     });
 
     const sessionVersion = 1;

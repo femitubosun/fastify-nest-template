@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { CryptoModule } from './crypto/crypto.module';
+import { QueueModule } from './queue/queue.module';
 
 @Global()
 @Module({
@@ -15,7 +16,8 @@ import { CryptoModule } from './crypto/crypto.module';
       inject: [ConfigService],
     }),
     CryptoModule,
+    QueueModule,
   ],
-  exports: [PrismaModule, RedisModule, CryptoModule],
+  exports: [PrismaModule, RedisModule, CryptoModule, QueueModule],
 })
 export class InfrastructureModule {}
