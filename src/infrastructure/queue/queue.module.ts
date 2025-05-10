@@ -1,4 +1,4 @@
-import bullMqConfig from '@/config/bull-mq';
+import bullMqConfig from '@/config/bullmq';
 import { QueueService } from '@/infrastructure/queue/queue.service';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { BullBoardModule } from '@bull-board/nestjs';
