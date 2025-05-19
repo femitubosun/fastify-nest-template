@@ -12,7 +12,7 @@ import { JwtPayloadSchema, SessionUserSchema } from '../__defs__';
 
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { JwtService } from 'src/infrastructure/crypto/services/jwt.service';
-import { RedisService } from 'src/infrastructure/redis/services/redis.service';
+import { RedisService } from '@/infrastructure/cache/services/redis.service';
 import { AuthedRequest } from 'src/common/__defs__';
 
 @Injectable()

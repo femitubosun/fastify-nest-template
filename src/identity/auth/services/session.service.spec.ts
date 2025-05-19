@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Mocked } from 'jest-mock';
 import { User } from '@/infrastructure/prisma/__defs__';
-import { RedisService } from '@/infrastructure/redis/services/redis.service';
+import { RedisService } from '@/infrastructure/cache/services/redis.service';
 import { SessionUserSchema } from '../__defs__';
 import { SessionService } from './session.service';
 

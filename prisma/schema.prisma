@@ -19,7 +19,7 @@ generator zod {
   addSelectType             = false
   createRelationValuesTypes = false
   writeNullishInModelTypes  = true
-  prismaClientPath          = "../src/infrastructure/prisma/generate/client"
+  prismaClientPath          = "../../generated/client"
 }
 
 

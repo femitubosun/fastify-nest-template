@@ -1,13 +1,14 @@
 import { Module, DynamicModule, Provider } from '@nestjs/common';
 import { createClient } from 'redis';
 import { RedisService as RedisService } from './services/redis.service';
+import { CacheService } from './services/cache.service';
 
 export interface RedisModuleOptions {
   url: string;
 }
 
 @Module({})
-export class RedisModule {
+export class CacheModule {
   static forRoot(options: RedisModuleOptions): DynamicModule {
     const redisProvider: Provider = {
       provide: 'REDIS_CLIENT',
@@ -20,7 +21,7 @@ export class RedisModule {
       },
     };
     return {
-      module: RedisModule,
+      module: CacheModule,
       providers: [redisProvider, RedisService],
       exports: [RedisService],
       global: true,
@@ -46,9 +47,9 @@ export class RedisModule {
     };
 
     return {
-      module: RedisModule,
-      providers: [asyncRedisProvider, RedisService],
-      exports: [RedisService],
+      module: CacheModule,
+      providers: [asyncRedisProvider, RedisService, CacheService],
+      exports: [CacheService],
     };
   }
 }
